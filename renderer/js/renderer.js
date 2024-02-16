@@ -5,6 +5,7 @@ const filename = document.querySelector('#filename');
 const heightInput = document.querySelector('#height');
 const widthInput = document.querySelector('#width');
 
+
 // Load image and show form
 function loadImage(e) {
   const file = e.target.files[0];
@@ -66,7 +67,7 @@ function multipleResize(e) {
 
   // Check image
   if (!img.files[0]) {
-    alert('Lütfen bir görsel yükleyin');
+    alertError('Lütfen bir görsel yükleyin');
     return;
   }
 
@@ -79,24 +80,23 @@ function multipleResize(e) {
 
   // File path of the selected image
   const imgPath = img.files[0].path;
-  const imgExt = window.electronAPI.pathExtname(imgPath);
-  const imgName = window.electronAPI.pathBasename(imgPath, imgExt);
 
-  // Resizing process for each resolution
-  resolutions.forEach(resolution => {
-    const resizeOptions = {
-      imgPath,
-      width: resolution.width,
-      height: resolution.height,
-      dest: window.path.join(outputPath.innerText, `${imgName}-${resolution.width}x${resolution.height}${imgExt}`)
-    };
-    window.ipcRenderer.send('image:multiple-resize', resizeOptions);
+  // Send the multiple resize event with all resolutions
+  ipcRenderer.send('image:multiple-resize', {
+    imgPath,
+    resolutions, // Bu dizi ana işlemciye gönderiliyor
+    dest: outputPath.innerText // Hedef klasör yolu
   });
 }
+
 
 // When done, show message
 ipcRenderer.on('image:done', () =>
   alertSuccess(`Görsel yeniden boyutlandırıldı`)
+);
+
+ipcRenderer.on('images:multiple-done', () =>
+  alertSuccess(`Tüm görseller yeniden boyutlandırıldı`)
 );
 
 function alertSuccess(message) {

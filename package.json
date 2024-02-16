@@ -1,7 +1,7 @@
 {
   "name": "imageresizer",
   "productName": "ImageResizer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "main.js",
   "scripts": {
@@ -11,11 +11,15 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^20.3.12",
-    "electron-packager": "^17.1.2"
+    "electron": "^28.2.3",
+    "electron-packager": "^17.1.2",
+    "electron-rebuild": "^3.2.9"
   },
   "dependencies": {
-    "resize-img": "^2.0.0",
+    "jimp": "^0.22.10",
+    "jpeg-js": "^0.4.4",
+    "minimist": "^1.2.8",
+    "resize-img": "^1.1.2",
     "toastify-js": "^1.12.0"
   }
 }

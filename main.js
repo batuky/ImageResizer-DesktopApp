@@ -2,6 +2,7 @@ const path = require('path');
 const os = require('os');
 const fs = require('fs');
 const resizeImg = require('resize-img');
+const Jimp = require('jimp');
 const { app, BrowserWindow, Menu, ipcMain, shell } = require('electron');
 
 // Add !== 'production' to set developer mode
@@ -108,42 +109,57 @@ ipcMain.on('image:resize', (e, options) => {
   // console.log(options);
   options.dest = path.join(os.homedir(), 'imageresizer');
   resizeImage(options);
+  shell.openPath(options.dest);
 });
 
-ipcMain.on('image:multiple-resize', (e, options) => {
-  resizeImage(options);
+ipcMain.on('image:multiple-resize', async (e, options) => {
+  const resolutions = [
+    { width: 974, height: 360 },
+    { width: 600, height: 477 },
+    { width: 928, height: 340 }
+  ];
+
+  try {
+    // Kullanıcıdan alınan hedef klasörü kullanarak her bir çözünürlük için döngü
+    for (const resolution of resolutions) {
+      // Her çözünürlük için resim yeniden boyutlandırma işlemi
+      await resizeImage({
+        imgPath: options.imgPath,
+        width: resolution.width,
+        height: resolution.height,
+        dest: options.dest
+      });
+    }
+    // Tüm resimler yeniden boyutlandırıldığında, başarı mesajı gönder
+    mainWindow.webContents.send('images:multiple-done');
+    shell.openPath(options.dest);
+  } catch (err) {
+    // Hata durumunda, hatayı ana pencerede göster
+    mainWindow.webContents.send('resize-error', err.message);
+  }
 });
 
 // Resize and save image
 async function resizeImage({ imgPath, height, width, dest }) {
   try {
-    // console.log(imgPath, height, width, dest);
-
-    // Resize image
-    const newPath = await resizeImg(fs.readFileSync(imgPath), {
-      width: +width,
-      height: +height,
-    });
-
-    // Get filename
-    const filename = path.basename(imgPath);
-
     // Create destination folder if it doesn't exist
     if (!fs.existsSync(dest)) {
       fs.mkdirSync(dest);
     }
 
-    // Write the file to the destination folder with the new filename
-    const newFilename = `${path.basename(imgPath, path.extname(imgPath))}-${width}x${height}${path.extname(imgPath)}`;
-    fs.writeFileSync(path.join(dest, newFilename), newPath);
+    // Get the new filename with proper extension
+    const newFilename = `${path.basename(imgPath, path.extname(imgPath))}-${width}x${height}.webp`;
 
-    // Send success to renderer
-    mainWindow.webContents.send('image:done');
+    // Use Jimp to resize and save the image
+    const image = await Jimp.read(imgPath);
+    image.resize(+width, +height).write(path.join(dest, newFilename), () => {
+      mainWindow.webContents.send('image:done');
+    });
 
-    // Open the folder in the file explorer
-    shell.openPath(dest);
   } catch (err) {
     console.log(err);
+    // Handle errors here
+    mainWindow.webContents.send('resize-error', err.message);
   }
 }
 
