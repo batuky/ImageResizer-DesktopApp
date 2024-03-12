@@ -15,7 +15,7 @@ let aboutWindow;
 // Main Window
 function createMainWindow() {
   mainWindow = new BrowserWindow({
-    width: isDev ? 1200 : 500,
+    width: isDev ? 1366 : 500,
     height: 800,
     icon: `${__dirname}/assets/icons/Icon_256x256.png`,
     resizable: isDev,
@@ -109,14 +109,14 @@ ipcMain.on('image:resize', (e, options) => {
   // console.log(options);
   options.dest = path.join(os.homedir(), 'imageresizer');
   resizeImage(options);
-  shell.openPath(options.dest);
 });
 
 ipcMain.on('image:multiple-resize', async (e, options) => {
   const resolutions = [
     { width: 974, height: 360 },
     { width: 600, height: 477 },
-    { width: 928, height: 340 }
+    { width: 928, height: 340 },
+    { width: 2000, height: 1600 }
   ];
 
   try {
@@ -132,11 +132,20 @@ ipcMain.on('image:multiple-resize', async (e, options) => {
     }
     // Tüm resimler yeniden boyutlandırıldığında, başarı mesajı gönder
     mainWindow.webContents.send('images:multiple-done');
-    shell.openPath(options.dest);
   } catch (err) {
     // Hata durumunda, hatayı ana pencerede göster
     mainWindow.webContents.send('resize-error', err.message);
   }
+});
+
+ipcMain.on('open-folder', async (e) => {
+  const dest = path.join(os.homedir(), 'imageresizer');
+  // Check folder, if it isn't exist create a folder.
+  if (!fs.existsSync(dest)) {
+    fs.mkdirSync(dest);
+  }
+  // Open folder
+  shell.openPath(dest);
 });
 
 // Resize and save image

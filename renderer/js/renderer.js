@@ -75,7 +75,8 @@ function multipleResize(e) {
   const resolutions = [
     { width: 974, height: 360 },
     { width: 600, height: 477 },
-    { width: 928, height: 340 }
+    { width: 928, height: 340 },
+    { width: 2000, height: 1600 }
   ];
 
   // File path of the selected image
@@ -89,6 +90,10 @@ function multipleResize(e) {
   });
 }
 
+//Open folder 
+function openFolder() {
+  window.ipcRenderer.send('open-folder');
+}
 
 // When done, show message
 ipcRenderer.on('image:done', () =>
@@ -131,3 +136,5 @@ img.addEventListener('change', loadImage);
 form.addEventListener('submit', resizeImage);
 // Multiple resize button listener
 document.querySelector('#multiple-resize').addEventListener('click', multipleResize);
+//Open folder button listener
+document.querySelector('#open-folder').addEventListener('click', openFolder);
