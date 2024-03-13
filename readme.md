@@ -10,7 +10,7 @@ It gives output by converting PNG, JPG, JPEG image formats to WEBP format.
 
 ## Notes
 
-Electron 22.0.0 version was chosen so that the application could run on Windows 8.
+Electron 22.0.0 version was chosen so that the application could run on Windows 8 and, higher.
 
 ## Usage
 
