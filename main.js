@@ -5,6 +5,7 @@ const resizeImg = require('resize-img');
 const Jimp = require('jimp');
 const { app, BrowserWindow, Menu, ipcMain, shell } = require('electron');
 
+// Developer and platform checks
 // Add !== 'production' to set developer mode
 const isDev = process.env.NODE_ENV == 'production';
 const isMac = process.platform === 'darwin';
@@ -12,11 +13,13 @@ const isMac = process.platform === 'darwin';
 let mainWindow;
 let aboutWindow;
 
-// Main Window
+/**
+ * Creates the main application window.
+ */
 function createMainWindow() {
   mainWindow = new BrowserWindow({
-    width: isDev ? 1366 : 500,
-    height: 800,
+    width: isDev ? 1200 : 500,
+    height: 1000,
     icon: `${__dirname}/assets/icons/Icon_256x256.png`,
     resizable: isDev,
     webPreferences: {
@@ -35,7 +38,9 @@ function createMainWindow() {
    mainWindow.loadFile(path.join(__dirname, './renderer/index.html'));
 }
 
-// About Window
+/**
+ * Creates an "About" window.
+ */
 function createAboutWindow() {
   aboutWindow = new BrowserWindow({
     width: 1200,
@@ -47,7 +52,7 @@ function createAboutWindow() {
    aboutWindow.loadFile(path.join(__dirname, './renderer/about.html'));
 }
 
-// When the app is ready, create the window
+// App ready event to create the main window and set up the menu
 app.on('ready', () => {
   createMainWindow();
 
@@ -58,7 +63,7 @@ app.on('ready', () => {
   mainWindow.on('closed', () => (mainWindow = null));
 });
 
-// Menu template
+// Menu template definition
 const menu = [
   ...(isMac
     ? [
@@ -89,22 +94,22 @@ const menu = [
         },
       ]
     : []),
-  // ...(isDev
-  //   ? [
-  //       {
-  //         label: 'Developer',
-  //         submenu: [
-  //           { role: 'reload' },
-  //           { role: 'forcereload' },
-  //           { type: 'separator' },
-  //           { role: 'toggledevtools' },
-  //         ],
-  //       },
-  //     ]
-  //   : []),
+  ...(isDev
+    ? [
+        {
+          label: 'Developer',
+          submenu: [
+            { role: 'reload' },
+            { role: 'forcereload' },
+            { type: 'separator' },
+            { role: 'toggledevtools' },
+          ],
+        },
+      ]
+    : []),
 ];
 
-// Respond to the resize image event
+// IPC event handlers to resize images
 ipcMain.on('image:resize', (e, options) => {
   // console.log(options);
   options.dest = path.join(os.homedir(), 'imageresizer');
@@ -116,13 +121,11 @@ ipcMain.on('image:multiple-resize', async (e, options) => {
     { width: 974, height: 360 },
     { width: 600, height: 477 },
     { width: 928, height: 340 },
-    { width: 2000, height: 1600 }
+    { width: 2000, height: 1600 } 
   ];
 
   try {
-    // Kullanıcıdan alınan hedef klasörü kullanarak her bir çözünürlük için döngü
     for (const resolution of resolutions) {
-      // Her çözünürlük için resim yeniden boyutlandırma işlemi
       await resizeImage({
         imgPath: options.imgPath,
         width: resolution.width,
@@ -130,15 +133,15 @@ ipcMain.on('image:multiple-resize', async (e, options) => {
         dest: options.dest
       });
     }
-    // Tüm resimler yeniden boyutlandırıldığında, başarı mesajı gönder
+    // Send a succsess message
     mainWindow.webContents.send('images:multiple-done');
   } catch (err) {
-    // Hata durumunda, hatayı ana pencerede göster
+    // Send an error message
     mainWindow.webContents.send('resize-error', err.message);
   }
 });
 
-ipcMain.on('open-folder', async (e) => {
+ipcMain.on('open-output-folder', async (e) => {
   const dest = path.join(os.homedir(), 'imageresizer');
   // Check folder, if it isn't exist create a folder.
   if (!fs.existsSync(dest)) {
@@ -148,7 +151,10 @@ ipcMain.on('open-folder', async (e) => {
   shell.openPath(dest);
 });
 
-// Resize and save image
+/**
+ * Resizes an image and saves it to the specified destination.
+ * @param {Object} options - The options object containing image path, dimensions, and destination.
+ */
 async function resizeImage({ imgPath, height, width, dest }) {
   try {
     // Create destination folder if it doesn't exist
@@ -172,7 +178,7 @@ async function resizeImage({ imgPath, height, width, dest }) {
   }
 }
 
-// Quit when all windows are closed.
+// App event handlers for macOS compatibility and quitting the app
 app.on('window-all-closed', () => {
   if (!isMac) app.quit();
 });

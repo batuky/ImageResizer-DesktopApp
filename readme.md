@@ -1,10 +1,16 @@
 # Image Resizer
 
 Electron application that allows you to select an image and easily change the width and/or height.
+Constant resolutions are 2000x1600, 974x360, 928x340 ve 600x477.
+It gives output by converting PNG, JPG, JPEG image formats to WEBP format.
 
 <div style="display: flex; justify-content: center">
 <img src="./assets/screen.png" width="400" />
 </div>
+
+## Notes
+
+Electron 22.0.0 version was chosen so that the application could run on Windows 8.
 
 ## Usage
 

@@ -1,3 +1,4 @@
+// Select DOM elements
 const form = document.querySelector('#img-form');
 const img = document.querySelector('#img');
 const outputPath = document.querySelector('#output-path');
@@ -5,7 +6,10 @@ const filename = document.querySelector('#filename');
 const heightInput = document.querySelector('#height');
 const widthInput = document.querySelector('#width');
 
-
+/**
+ * Loads the selected image and updates the UI accordingly.
+ * @param {Event} e - The event object.
+ */
 // Load image and show form
 function loadImage(e) {
   const file = e.target.files[0];
@@ -30,12 +34,21 @@ function loadImage(e) {
   outputPath.innerText = path.join(os.homedir(), 'imageresizer');
 }
 
+/**
+ * Checks if the provided file is an image.
+ * @param {File} file - The file to check.
+ * @returns {boolean} - True if the file is an image, false otherwise.
+ */
 // Make sure file is an image
 function isFileImage(file) {
   const acceptedImageTypes = ['image/jpg', 'image/jpeg', 'image/png'];
   return file && acceptedImageTypes.includes(file['type']);
 }
 
+/**
+ * Resizes the selected image based on input values.
+ * @param {Event} e - The event object.
+ */
 // Resize image
 function resizeImage(e) {
   e.preventDefault();
@@ -62,6 +75,10 @@ function resizeImage(e) {
   });
 }
 
+/**
+ * Resizes the selected image to multiple predefined resolutions.
+ * @param {Event} e - The event object.
+ */
 function multipleResize(e) {
   e.preventDefault();
 
@@ -85,14 +102,16 @@ function multipleResize(e) {
   // Send the multiple resize event with all resolutions
   ipcRenderer.send('image:multiple-resize', {
     imgPath,
-    resolutions, // Bu dizi ana işlemciye gönderiliyor
-    dest: outputPath.innerText // Hedef klasör yolu
+    resolutions,
+    dest: outputPath.innerText // Folder destination
   });
 }
 
-//Open folder 
-function openFolder() {
-  window.ipcRenderer.send('open-folder');
+/**
+ * Opens the output folder in the file explorer.
+ */
+function openOutputFolder() {
+  ipcRenderer.send('open-output-folder');
 }
 
 // When done, show message
@@ -101,9 +120,13 @@ ipcRenderer.on('image:done', () =>
 );
 
 ipcRenderer.on('images:multiple-done', () =>
-  alertSuccess(`Tüm görseller yeniden boyutlandırıldı`)
+  alertSuccess(`Görsel tüm boyutlar için yeniden boyutlandırıldı`)
 );
 
+/**
+ * Displays a success message using Toastify.
+ * @param {string} message - The success message to display.
+ */
 function alertSuccess(message) {
   Toastify.toast({
     text: message,
@@ -117,6 +140,10 @@ function alertSuccess(message) {
   });
 }
 
+/**
+ * Displays an error message using Toastify.
+ * @param {string} message - The error message to display.
+ */
 function alertError(message) {
   Toastify.toast({
     text: message,
@@ -137,4 +164,4 @@ form.addEventListener('submit', resizeImage);
 // Multiple resize button listener
 document.querySelector('#multiple-resize').addEventListener('click', multipleResize);
 //Open folder button listener
-document.querySelector('#open-folder').addEventListener('click', openFolder);
+document.querySelector('#open-output-folder').addEventListener('click', openOutputFolder);

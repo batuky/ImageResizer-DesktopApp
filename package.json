@@ -1,7 +1,7 @@
 {
   "name": "imageresizer",
   "productName": "ImageResizer",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "",
   "main": "main.js",
   "scripts": {
@@ -11,7 +11,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^28.2.3",
+    "electron": "^22.0.0",
     "electron-packager": "^17.1.2",
     "electron-rebuild": "^3.2.9"
   },
