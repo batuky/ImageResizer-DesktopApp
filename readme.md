@@ -38,3 +38,10 @@ npx electronmon .
 If your `NODE_ENV` is set to `development` then you will have the dev tools enabled and available in the menu bar. It will also open them by default.
 
 When set to `production`, the dev tools will not be available.
+
+## Package
+If you want to run the application with exe, enter the following code in the terminal.
+
+```bash
+electron-packager . ImageResizer --overwrite --asar --platform=win32 --arch=ia32 --icon=assets/icons/win/icon.ico --prune=true --out=./release --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName="ImageResizer"
+```
